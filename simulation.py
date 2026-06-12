@@ -76,7 +76,7 @@ try:
             id        = i,
             latitude  = round(random.uniform(14.0, 15.0), 4),
             longitude = round(random.uniform(16.5, 17.5), 4),
-            zone      = random.choice(["Diamniadio", "Sébikotane", "Bargny"]),
+            zone      = random.choice(["Diamniadio", "Sebikotane", "Bargny"]),
             status    = "ACTIVE",
             particule = p["particule"],
             notation  = p["notation"],
