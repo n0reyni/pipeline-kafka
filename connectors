@@ -1,0 +1,35 @@
+curl -X POST http://localhost:8084/connectors -H "Content-Type: application/json" -d '{
+  "name": "kafka-to-mysql",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+    "tasks.max": "1",
+    "topics": "topic-capteurs",
+    "connection.url": "jdbc:mysql://mysql:3306/topic_capteurs",
+    "connection.user": "mkc",
+    "connection.password": "passer123",
+    "insert.mode": "insert",
+    "auto.create": "true",
+    "auto.evolve": "true",
+    "table.name.format": "capteurs",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "true",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter"
+  }
+}'
+
+curl -X POST http://localhost:8084/connectors -H "Content-Type: application/json" -d '{
+  "name": "emqx-to-kafka",
+  "config": {
+    "connector.class": "io.confluent.connect.mqtt.MqttSourceConnector",
+    "tasks.max": "1",
+    "mqtt.server.uri": "tcp://emqx:1883",
+    "mqtt.topics": "capteurs/#",
+    "kafka.topic": "topic-capteurs",
+    "value.converter": "org.apache.kafka.connect.converters.ByteArrayConverter",
+    "confluent.topic.bootstrap.servers": "kafka:29092",
+    "confluent.topic.replication.factor": "1"
+  }
+}'
+
+curl -s http://localhost:8084/connectors/kafka-to-mysql/status | grep "RUNNING"
+curl -s http://localhost:8084/connectors/emqx-to-kafka/status | grep "RUNNING"
