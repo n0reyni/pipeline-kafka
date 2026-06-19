@@ -4,40 +4,19 @@ Ce projet configure un pipeline de données complet. Les messages MQTT envoyés 
 
 ---
 
-## 1. Initialisation de la Base de Données MySQL
+## 1. Lancement de l'Infrastructure Docker
 
-Vous pouvez ignorer cette étape et passer à l'étape 2, car le fichier docker actuel intégre la base de données, mais vous avez besoin de ces informations par contre pour vous connecter sur la base de données afin de savoir si tout fonctionne.
-Connectez-vous à votre instance MySQL locale en tant que `root` et exécutez les commandes suivantes :
-
-```sql
--- 1. Création de la base de données
-CREATE DATABASE topic_capteurs;
-
--- 2. Création de l'utilisateur avec le mot de passe requis par le connecteur
-CREATE USER 'mkc'@'%' IDENTIFIED BY 'passer123';
-
--- 3. Attribution des privilèges requis pour créer des tables et insérer des données
-GRANT ALL PRIVILEGES ON topic_capteurs.* TO 'mkc'@'%';
-
--- 4. Application des changements
-FLUSH PRIVILEGES;
-```
-
----
-
-## 2. Lancement de l'Infrastructure Docker
-
-Démarrez l'ensemble des conteneurs (Kafka, Kafka UI, EMQX, Kafka Connect) en arrière-plan :
+Démarrez l'ensemble des conteneurs (MySQL, Kafka, Kafka UI, EMQX, Kafka Connect) en arrière-plan :
 
 ```bash
 docker compose up -d
 ```
 
-> ⚠️ **Important** : Kafka Connect télécharge et installe les plugins JDBC et MQTT au premier démarrage. Attendez environ 1 à 2 minutes avant de passer à l'étape suivante.
+> ⚠️ **Important** : Le conteneur MySQL s'initialise automatiquement avec la base de données et l'utilisateur requis. Kafka Connect télécharge et installe les plugins JDBC et MQTT au premier démarrage. Attendez environ 1 à 2 minutes avant de passer à l'étape suivante.
 
 ---
 
-## 3. Configuration des Connecteurs Kafka Connect
+## 2. Configuration des Connecteurs Kafka Connect
 
 Une fois Kafka Connect démarré (accessible sur le port `8084`), configurez les deux connecteurs en exécutant ces requêtes HTTP.
 
@@ -66,7 +45,7 @@ curl -X POST http://localhost:8084/connectors -H "Content-Type: application/json
     "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
     "tasks.max": "1",
     "topics": "topic-capteurs",
-    "connection.url": "jdbc:mysql://host.docker.internal:3306/topic_capteurs",
+    "connection.url": "jdbc:mysql://mysql-local:3306/topic_capteurs",
     "connection.user": "mkc",
     "connection.password": "passer123",
     "insert.mode": "insert",
@@ -89,7 +68,7 @@ curl -s http://localhost:8084/connectors/kafka-to-mysql/status | grep "RUNNING"
 
 ---
 
-## 4. Simulation des Données Capteurs
+## 3. Simulation des Données Capteurs
 
 1. Créez l'environnement virtuel Python :
    ```bash
@@ -122,4 +101,30 @@ curl -s http://localhost:8084/connectors/kafka-to-mysql/status | grep "RUNNING"
    python simulation.py
    ```
 La table `capteurs` sera automatiquement créée dans MySQL lors de la réception du premier message et se remplira en temps réel.
+
+---
+
+## 4. Vérification de la Base de Données Docker
+
+Pour valider le bon fonctionnement du pipeline et vous assurer que les données de la simulation sont correctement stockées, connectez-vous directement au conteneur MySQL.
+
+1. Accédez au terminal interactif du conteneur MySQL :
+   ```bash
+   docker exec -it mysql-local mysql -u mkc -ppasser123 topic_capteurs
+   ```
+
+2. Vérifiez la présence de la table `capteurs` :
+   ```sql
+   SHOW TABLES;
+   ```
+
+3. Visualisez les valeurs insérées en temps réel par le pipeline :
+   ```sql
+   SELECT * FROM capteurs LIMIT 10;
+   ```
+
+4. Quittez l'interface MySQL :
+   ```sql
+   EXIT;
+   ```
 
