@@ -127,8 +127,18 @@ Pour valider le bon fonctionnement du pipeline et vous assurer que les données 
    ```sql
    EXIT;
    ```
+---
 
 ## 🎉 Félicitations !
 
 Bravo ! Vous avez configuré avec succès le pipeline de données IoT EMQX-KAFKA.
+
+### 🖥️ Accès aux Interfaces Graphiques
+
+Vous pouvez piloter et surveiller votre infrastructure en temps réel via les outils d'administration visuels :
+
+* **📊 Interface Graphique KAFKA (Kafka UI)** : [http://localhost:8080](http://localhost:8080)
+* **🔌 Interface Graphique EMQX (Dashboard)** : [http://localhost:18083](http://localhost:18083)
+
+Votre architecture valide désormais le parcours complet de la donnée, de la capture à la persistance en base de données.
 
