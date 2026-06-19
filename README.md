@@ -6,8 +6,7 @@ Ce projet configure un pipeline de données complet. Les messages MQTT envoyés 
 
 ## 1. Initialisation de la Base de Données MySQL
 
-Avant de lancer l'infrastructure, vous devez créer la base de données et l'utilisateur MySQL sur votre machine hôte avec les privilèges appropriés.
-
+Vous pouvez ignorer cette étape et passer à l'étape 2, car le fichier docker actuel intégre la base de données, mais vous avez besoin de ces informations par contre pour vous connecter sur la base de données afin de savoir si tout fonctionne.
 Connectez-vous à votre instance MySQL locale en tant que `root` et exécutez les commandes suivantes :
 
 ```sql
@@ -92,14 +91,35 @@ curl -s http://localhost:8084/connectors/kafka-to-mysql/status | grep "RUNNING"
 
 ## 4. Simulation des Données Capteurs
 
-1. Installez les dépendances Python requises :
+1. Créez l'environnement virtuel Python :
+   ```bash
+   # Sur Linux / macOS
+   python3 -m venv env
+   
+   # Sur Windows
+   python -m venv env
+   ```
+
+2. Activez l'environnement virtuel :
+   ```bash
+   # Sur Linux / macOS
+   source env/bin/activate
+   
+   # Sur Windows (Command Prompt)
+   env\Scripts\activate
+   
+   # Sur Windows (PowerShell)
+   .\env\Scripts\Activate.ps1
+   ```
+
+3. Installez les dépendances requises :
    ```bash
    pip install -r requirements.txt
    ```
-2. Lancez le script de simulation pour envoyer des messages MQTT en continu :
+
+4. Lancez le script de simulation pour envoyer les messages MQTT en continu :
    ```bash
    python simulation.py
    ```
-
 La table `capteurs` sera automatiquement créée dans MySQL lors de la réception du premier message et se remplira en temps réel.
 
