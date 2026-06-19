@@ -128,3 +128,7 @@ Pour valider le bon fonctionnement du pipeline et vous assurer que les données 
    EXIT;
    ```
 
+## 🎉 Félicitations !
+
+Bravo ! Vous avez configuré avec succès le pipeline de données IoT EMQX-KAFKA.
+
